@@ -26,6 +26,19 @@ vector<double> operator*(const vector<vector<double>>& lhs_matrix, const vector<
     return multiply_matrix;
 }
 
+// Overloading the multiplication operator for matrix (4x4)
+vector<vector<double>> operator*(const vector<vector<double>>& lhs_matrix, const vector<vector<double>>& rhs_matrix) {
+    vector<vector<double>> multiply_matrix(SIZE_MATRIX, vector<double>(SIZE_MATRIX));
+    for (int index_row = 0; index_row < SIZE_MATRIX; ++index_row) {
+        for (int index_col = 0; index_col < SIZE_MATRIX; ++index_col) {
+            for (int index_subrow = 0; index_subrow < SIZE_MATRIX; ++index_subrow) {
+                multiply_matrix[index_row][index_col] += lhs_matrix[index_row][index_subrow] * rhs_matrix[index_subrow][index_col];
+            }
+        }
+    }
+    return multiply_matrix;
+}
+
 // Overloading the subtraction operator for vectors of dimension (4x1)
 vector<double> operator-(const vector<double>& lhs_vector, const vector<double>& rhs_vector) {
     vector<double> subtraction_vector(SIZE_MATRIX);
@@ -60,16 +73,15 @@ private:
     vector<double> solution_vector;
 };
 
-void print_equations(Equation& sles) {
-    vector<vector<double>> lhs_matrix = sles.getMatrix();
-    vector<double> rhs_vector = sles.getRHSVector();
-
-    cout << "System linear algebraic equations has the form:" << endl;
+void print_equations(const vector<vector<double>>& lhs_matrix, const vector<double>& rhs_vector) {
+    cout << setprecision(2);
     for (int index_row = 0; index_row < SIZE_MATRIX; ++index_row) {
         for (int index_col = 0; index_col < SIZE_MATRIX; ++index_col) {
-            cout << setw(7) << left << lhs_matrix[index_row][index_col];
+            cout << setw(8) << left << fixed << lhs_matrix[index_row][index_col];
         }
-        cout << "| " << rhs_vector[index_row];
+        if (!rhs_vector.empty()) { 
+            cout << "| " << rhs_vector[index_row];
+        }
         cout << endl;
     }
     cout << endl;
@@ -89,9 +101,8 @@ void print_vector(const vector<double>& output_vector, const string& name_vector
 }
 
 // Task No.1
-void method_Gauss(Equation& sles) {
+void method_Gauss(Equation& sles, vector<double> rhs_vector) {
     vector<vector<double>> lhs_matrix = sles.getMatrix();
-    vector<double> rhs_vector = sles.getRHSVector();
     vector<int> index_solution = {0, 1, 2, 3};
     vector<double> solution_equation(SIZE_MATRIX, 0.0);
 
@@ -135,7 +146,7 @@ void method_Gauss(Equation& sles) {
     }
 
     // Rearranging the elements of the solution
-    // Bubble sort - O(n^2)
+    // Bubble sort
     for (int index_left_element = 0; index_left_element < SIZE_MATRIX; ++index_left_element) {
         for (int index_right_element = 0; index_right_element < SIZE_MATRIX - 1; ++index_right_element) {
             if (index_solution[index_right_element] > index_solution[index_right_element + 1]) {
@@ -145,6 +156,8 @@ void method_Gauss(Equation& sles) {
         }
     }
     sles.setSolutionVector(solution_equation);
+
+    // Task No.3
     double value_determinant = lhs_matrix[0][0];
     for (int index_element_diagonal = 1; index_element_diagonal < SIZE_MATRIX; ++index_element_diagonal) {
         value_determinant *= lhs_matrix[index_element_diagonal][index_element_diagonal];
@@ -157,6 +170,36 @@ vector<double> find_residual_vector(Equation& sles) {
     return sles.getMatrix() * sles.getSolutionVector() - sles.getRHSVector();
 }
 
+// Task No.4
+vector<double> find_inverse_matrix(vector<vector<double>> lhs_matrix, vector<double> rhs_vector) {
+    for (int index_row = 0; index_row < SIZE_MATRIX; ++index_row) {
+        for (int index_subrow = index_row + 1; index_subrow < SIZE_MATRIX; ++index_subrow) {
+            double coeff_multiply = -(lhs_matrix[index_subrow][index_row] / lhs_matrix[index_row][index_row]);
+            rhs_vector[index_subrow] += coeff_multiply * rhs_vector[index_row];
+            for (int index_col = 0; index_col < SIZE_MATRIX; ++index_col) {
+                lhs_matrix[index_subrow][index_col] += coeff_multiply * lhs_matrix[index_row][index_col];
+            }
+        }
+    }
+    for (int index_row = 0; index_row < SIZE_MATRIX; ++index_row) {
+        double diagonal_element = lhs_matrix[index_row][index_row];
+        for (int index_col = 0; index_col < SIZE_MATRIX; ++index_col) {
+            lhs_matrix[index_row][index_col] /= diagonal_element;
+        }
+        rhs_vector[index_row] /= diagonal_element;
+    }
+    for (int index_subrow = SIZE_MATRIX - 1; index_subrow > 0; --index_subrow) {
+        for (int index_row = index_subrow - 1; index_row >= 0; --index_row) {
+            double temp = lhs_matrix[index_row][index_subrow];
+            for (int index_col = 0; index_col < SIZE_MATRIX; ++index_col) {
+                lhs_matrix[index_row][index_col] -= lhs_matrix[index_subrow][index_col] * temp;
+            }
+            rhs_vector[index_row] -= rhs_vector[index_subrow] * temp;
+        }
+    }
+    return rhs_vector;
+}
+
 int main() {
     Equation sles;
     sles.setMatrix({ {-2.0,  3.01,  0.12, -0.11},
@@ -167,17 +210,41 @@ int main() {
                         3.46,
                         2.79,
                         1.01 });
-    // Print first Ax=B
-    print_equations(sles);
-    method_Gauss(sles);
-    // Print solution x
+    Equation sles_for_inverse_matrix;
+    sles_for_inverse_matrix.setMatrix(sles.getMatrix());
+    cout << "System linear algebraic equations has the form:" << endl;
+    print_equations(sles.getMatrix(), sles.getRHSVector());
+
+    // Task No. 1
+    method_Gauss(sles, sles.getRHSVector());
     cout << "Solution system linear algebraic equations:" << endl;
     print_vector(sles.getSolutionVector(), "Solution");
+
+    // Task No.2
     cout << "Residual vector:" << endl;
     print_vector(find_residual_vector(sles), "Residual");
 
     // Task No.3
     cout << setprecision(4) << "Value of the determinant: " << sles.getValueDeterminant() << endl;
 
+    // Task No.4
+    vector<vector<double>> inverse_matrix(SIZE_MATRIX, vector<double>(SIZE_MATRIX));
+    vector<vector<double>> matrixA = sles_for_inverse_matrix.getMatrix();
+    inverse_matrix[0] = find_inverse_matrix(matrixA, { 1.0, 0.0, 0.0, 0.0 });
+    inverse_matrix[1] = find_inverse_matrix(matrixA, { 0.0, 1.0, 0.0, 0.0 });
+    inverse_matrix[2] = find_inverse_matrix(matrixA, { 0.0, 0.0, 1.0, 0.0 });
+    inverse_matrix[3] = find_inverse_matrix(matrixA, { 0.0, 0.0, 0.0, 1.0 });
+    // Transpose matrix
+    for (int index_row = 0; index_row < SIZE_MATRIX; ++index_row) {
+        for (int index_col = index_row; index_col < SIZE_MATRIX; ++index_col) {
+            if (index_col != index_row)
+                swap(inverse_matrix[index_row][index_col], inverse_matrix[index_col][index_row]);
+        }
+    }
+
+    // Task No.5
+    vector<vector<double>> unit_matrix = matrixA * inverse_matrix;
+    cout << endl << "Multiply source matrix on inverse matrix A*A^{-1}=E:" << endl;
+    print_equations(unit_matrix, sles_for_inverse_matrix.getRHSVector());
     return 0;
 }
