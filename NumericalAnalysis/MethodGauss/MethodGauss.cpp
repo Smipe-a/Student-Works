@@ -13,6 +13,7 @@ using namespace std;
 
 const int SIZE_MATRIX = 4;
 
+// Overloading the multiplication operator for matrix (4x4) and vector (4x1)
 vector<double> operator*(const vector<vector<double>>& lhs_matrix, const vector<double>& rhs_vector) {
     vector<double> multiply_matrix(SIZE_MATRIX);
     for (int index_row = 0; index_row < SIZE_MATRIX; ++index_row) {
@@ -25,6 +26,7 @@ vector<double> operator*(const vector<vector<double>>& lhs_matrix, const vector<
     return multiply_matrix;
 }
 
+// Overloading the subtraction operator for vectors of dimension (4x1)
 vector<double> operator-(const vector<double>& lhs_vector, const vector<double>& rhs_vector) {
     vector<double> subtraction_vector(SIZE_MATRIX);
     for (int index_row = 0; index_row < SIZE_MATRIX; ++index_row) {
@@ -35,21 +37,23 @@ vector<double> operator-(const vector<double>& lhs_vector, const vector<double>&
 
 class Equation {
 public:
-    //
-    void SetMatrix(const vector<vector<double>>& new_matrix) { matrix = new_matrix; }
-    void SetRHSVector(const vector<double>& new_rhs_vector) { rhs_vector = new_rhs_vector; }
-    void SetSolutionVector(const vector<double>& new_solution) { solution_vector = new_solution; }
-    void SetCountPermutation() { ++permutation; }
+    // Setters
+    void setMatrix(const vector<vector<double>>& new_matrix) { matrix = new_matrix; }
+    void setRHSVector(const vector<double>& new_rhs_vector) { rhs_vector = new_rhs_vector; }
+    void setSolutionVector(const vector<double>& new_solution) { solution_vector = new_solution; }
+    void setCountPermutation() { ++permutation; }
+    void setValueDeterminant(const double& new_determinant) { determinant = new_determinant; }
     
-    // Return left part equations Ax=f
-    vector<vector<double>> GetMatrix() const { return matrix; }
-    // Return right part equations Ax=f 
-    vector<double> GetRHSVector() const { return rhs_vector; }
-    vector<double> GetSolutionVector() const { return solution_vector; }
-    int GetCountPermutation() const { return permutation; }
+    // Getters
+    vector<vector<double>> getMatrix() const { return matrix; }
+    vector<double> getRHSVector() const { return rhs_vector; }
+    vector<double> getSolutionVector() const { return solution_vector; }
+    int getCountPermutation() const { return permutation; }
+    double getValueDeterminant() const { return determinant; }
     
 private:
     int permutation = 0;
+    double determinant = 0;
 
     vector<vector<double>> matrix;
     vector<double> rhs_vector;
@@ -57,8 +61,8 @@ private:
 };
 
 void print_equations(Equation& sles) {
-    vector<vector<double>> lhs_matrix = sles.GetMatrix();
-    vector<double> rhs_vector = sles.GetRHSVector();
+    vector<vector<double>> lhs_matrix = sles.getMatrix();
+    vector<double> rhs_vector = sles.getRHSVector();
 
     cout << "System linear algebraic equations has the form:" << endl;
     for (int index_row = 0; index_row < SIZE_MATRIX; ++index_row) {
@@ -76,7 +80,7 @@ void print_vector(const vector<double>& output_vector, const string& name_vector
         if (name_vector == "Solution") {
             cout << setprecision(4);
             cout << "x_" << index_element + 1 << ": " << output_vector[index_element] << endl;
-        } else {
+        } else if (name_vector == "Residual") {
             cout << setprecision(15);
             cout << "r_" << index_element + 1 << ": " << fixed << output_vector[index_element] << endl;
         }
@@ -86,8 +90,8 @@ void print_vector(const vector<double>& output_vector, const string& name_vector
 
 // Task No.1
 void method_Gauss(Equation& sles) {
-    vector<vector<double>> lhs_matrix = sles.GetMatrix();
-    vector<double> rhs_vector = sles.GetRHSVector();
+    vector<vector<double>> lhs_matrix = sles.getMatrix();
+    vector<double> rhs_vector = sles.getRHSVector();
     vector<int> index_solution = {0, 1, 2, 3};
     vector<double> solution_equation(SIZE_MATRIX, 0.0);
 
@@ -96,6 +100,7 @@ void method_Gauss(Equation& sles) {
         double main_element = lhs_matrix[index_row][index_row];
         int index_main_element = index_row;
 
+        // Find index main element
         for (int index_col = index_row; index_col < SIZE_MATRIX; ++index_col) {
             if (abs(main_element) < abs(lhs_matrix[index_row][index_col])) {
                 main_element = lhs_matrix[index_row][index_col];
@@ -103,14 +108,11 @@ void method_Gauss(Equation& sles) {
             }
         }
         if (index_main_element != index_row) {
-            sles.SetCountPermutation();
-            // Swap columns matrix A
+            sles.setCountPermutation();
+            // Swap columns matrix A and index coefficients solution
             for (int index_swap = 0; index_swap < SIZE_MATRIX; ++index_swap) {
-                // first - Один из индексов главной диагонали
-                // second - Индекс главного элемента
                 swap(lhs_matrix[index_swap][index_row], lhs_matrix[index_swap][index_main_element]);
             }
-            // Также меняем массив индексов решения СЛАУ, потому что столбцы матрицы(x_first <-> x_second) менялись
             swap(index_solution[index_row], index_solution[index_main_element]);
         }
 
@@ -123,7 +125,7 @@ void method_Gauss(Equation& sles) {
         }
     }
 
-    // Solution x linear algebraic equations Ax=B
+    // Solution 'x' linear algebraic equations Ax=B
     for (int index_row = SIZE_MATRIX - 1; index_row >= 0; --index_row) {
         double coeff_multiply = 0.0;
         for (int index_col = index_row; index_col < SIZE_MATRIX; ++index_col) {
@@ -132,7 +134,7 @@ void method_Gauss(Equation& sles) {
         }
     }
 
-    // Swap elements solution, 
+    // Rearranging the elements of the solution
     // Bubble sort - O(n^2)
     for (int index_left_element = 0; index_left_element < SIZE_MATRIX; ++index_left_element) {
         for (int index_right_element = 0; index_right_element < SIZE_MATRIX - 1; ++index_right_element) {
@@ -142,21 +144,26 @@ void method_Gauss(Equation& sles) {
             }
         }
     }
-    sles.SetSolutionVector(solution_equation);
+    sles.setSolutionVector(solution_equation);
+    double value_determinant = lhs_matrix[0][0];
+    for (int index_element_diagonal = 1; index_element_diagonal < SIZE_MATRIX; ++index_element_diagonal) {
+        value_determinant *= lhs_matrix[index_element_diagonal][index_element_diagonal];
+    }
+    sles.setValueDeterminant(pow(-1, sles.getCountPermutation()) * value_determinant);
 }
 
 // Task No.2
 vector<double> find_residual_vector(Equation& sles) {
-    return sles.GetMatrix() * sles.GetSolutionVector() - sles.GetRHSVector();
+    return sles.getMatrix() * sles.getSolutionVector() - sles.getRHSVector();
 }
 
 int main() {
     Equation sles;
-    sles.SetMatrix({ {-2.0,  3.01,  0.12, -0.11},
+    sles.setMatrix({ {-2.0,  3.01,  0.12, -0.11},
                      {2.92, -0.17,  0.11,  0.22},
                      {0.66,  0.52,  3.17,  2.11},
                      {3.01,  0.42, -0.27,  0.15} });
-    sles.SetRHSVector({ 4.13,
+    sles.setRHSVector({ 4.13,
                         3.46,
                         2.79,
                         1.01 });
@@ -165,8 +172,12 @@ int main() {
     method_Gauss(sles);
     // Print solution x
     cout << "Solution system linear algebraic equations:" << endl;
-    print_vector(sles.GetSolutionVector(), "Solution");
+    print_vector(sles.getSolutionVector(), "Solution");
     cout << "Residual vector:" << endl;
     print_vector(find_residual_vector(sles), "Residual");
+
+    // Task No.3
+    cout << setprecision(4) << "Value of the determinant: " << sles.getValueDeterminant() << endl;
+
     return 0;
 }
