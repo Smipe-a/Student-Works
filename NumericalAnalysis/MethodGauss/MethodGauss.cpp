@@ -241,10 +241,12 @@ int main() {
                 swap(inverse_matrix[index_row][index_col], inverse_matrix[index_col][index_row]);
         }
     }
+    cout << endl << "Inverse matrix has the form: " << endl;
+    print_equations(inverse_matrix, sles_for_inverse_matrix.getRHSVector());
 
     // Task No.5
     vector<vector<double>> unit_matrix = matrixA * inverse_matrix;
-    cout << endl << "Multiply source matrix on inverse matrix A*A^{-1}=E:" << endl;
+    cout << "Multiply source matrix on inverse matrix A*A^{-1}=E:" << endl;
     print_equations(unit_matrix, sles_for_inverse_matrix.getRHSVector());
     return 0;
 }
