@@ -11,6 +11,28 @@
 
 using namespace std;
 
+const int SIZE_MATRIX = 4;
+
+vector<double> operator*(const vector<vector<double>>& lhs_matrix, const vector<double>& rhs_vector) {
+    vector<double> multiply_matrix(SIZE_MATRIX);
+    for (int index_row = 0; index_row < SIZE_MATRIX; ++index_row) {
+        double value_multiply = 0.0;
+        for (int index_col = 0; index_col < SIZE_MATRIX; ++index_col) {
+            value_multiply += lhs_matrix[index_row][index_col] * rhs_vector[index_col];
+        }
+        multiply_matrix[index_row] = value_multiply;
+    }
+    return multiply_matrix;
+}
+
+vector<double> operator-(const vector<double>& lhs_vector, const vector<double>& rhs_vector) {
+    vector<double> subtraction_vector(SIZE_MATRIX);
+    for (int index_row = 0; index_row < SIZE_MATRIX; ++index_row) {
+        subtraction_vector[index_row] = lhs_vector[index_row] - rhs_vector[index_row];
+    }
+    return subtraction_vector;
+}
+
 class Equation {
 public:
     //
@@ -24,11 +46,9 @@ public:
     // Return right part equations Ax=f 
     vector<double> GetRHSVector() const { return rhs_vector; }
     vector<double> GetSolutionVector() const { return solution_vector; }
-    int GetSizeMatrix() const { return SIZE_MATRIX; }
     int GetCountPermutation() const { return permutation; }
     
 private:
-    const int SIZE_MATRIX = 4;
     int permutation = 0;
 
     vector<vector<double>> matrix;
@@ -39,7 +59,6 @@ private:
 void print_equations(Equation& sles) {
     vector<vector<double>> lhs_matrix = sles.GetMatrix();
     vector<double> rhs_vector = sles.GetRHSVector();
-    const int SIZE_MATRIX = sles.GetSizeMatrix();
 
     cout << "System linear algebraic equations has the form:" << endl;
     for (int index_row = 0; index_row < SIZE_MATRIX; ++index_row) {
@@ -52,24 +71,24 @@ void print_equations(Equation& sles) {
     cout << endl;
 }
 
-void print_soluiton(const Equation& sles) {
-    vector<double> solution_vector = sles.GetSolutionVector();
-    const int SIZE_MATRIX = sles.GetSizeMatrix();
-
-    cout << setprecision(4) << "Solution system linear algebraic equations:" << endl;
+void print_vector(const vector<double>& output_vector, const string& name_vector) {
     for (int index_element = 0; index_element < SIZE_MATRIX; ++index_element) {
-        cout << "x_" << index_element + 1 << ": " << solution_vector[index_element] << endl;
+        if (name_vector == "Solution") {
+            cout << setprecision(4);
+            cout << "x_" << index_element + 1 << ": " << output_vector[index_element] << endl;
+        } else {
+            cout << setprecision(15);
+            cout << "r_" << index_element + 1 << ": " << fixed << output_vector[index_element] << endl;
+        }
     }
     cout << endl;
 }
 
 // Task No.1
 void method_Gauss(Equation& sles) {
-    const int SIZE_MATRIX = sles.GetSizeMatrix();
     vector<vector<double>> lhs_matrix = sles.GetMatrix();
     vector<double> rhs_vector = sles.GetRHSVector();
     vector<int> index_solution = {0, 1, 2, 3};
-
     vector<double> solution_equation(SIZE_MATRIX, 0.0);
 
     for (int index_row = 0; index_row < SIZE_MATRIX; ++index_row) {
@@ -126,6 +145,11 @@ void method_Gauss(Equation& sles) {
     sles.SetSolutionVector(solution_equation);
 }
 
+// Task No.2
+vector<double> find_residual_vector(Equation& sles) {
+    return sles.GetMatrix() * sles.GetSolutionVector() - sles.GetRHSVector();
+}
+
 int main() {
     Equation sles;
     sles.SetMatrix({ {-2.0,  3.01,  0.12, -0.11},
@@ -140,6 +164,9 @@ int main() {
     print_equations(sles);
     method_Gauss(sles);
     // Print solution x
-    print_soluiton(sles);
+    cout << "Solution system linear algebraic equations:" << endl;
+    print_vector(sles.GetSolutionVector(), "Solution");
+    cout << "Residual vector:" << endl;
+    print_vector(find_residual_vector(sles), "Residual");
     return 0;
 }
