@@ -1,7 +1,6 @@
 /*
 * Semester 2. Laboratory work No.2
 * The grid method for solving an initial-boundary value problem for an equation of hyperbolic type.
-* 
 */
 #include <iostream>
 #include <iomanip>
