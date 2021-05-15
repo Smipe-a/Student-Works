@@ -1,5 +1,5 @@
 /*
-* Laboratory work No.2
+* Semester 1. Laboratory work No.2
 * Method LU-decomposition and simple-iteration method.
 * LU-decomposition. Simple-iteration method.
 * The solution is given for a 4x4 matrix.

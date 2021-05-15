@@ -1,5 +1,5 @@
 ﻿/*
-* Laboratory work No.1
+* Semester 1. Laboratory work No.1
 * Gaussian method with main element selection by row.
 * Method Gauss. Residual vector. Determinant a matrix. Inverse matrix.
 * The solution is given for a 4x4 matrix.

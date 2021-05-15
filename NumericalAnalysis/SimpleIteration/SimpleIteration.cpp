@@ -1,5 +1,5 @@
 /*
-* Laboratory work No.3
+* Semester 1. Laboratory work No.3
 * Solving systems of nonlinear equations.
 * Simple-iteration method. Newton method.
 */
