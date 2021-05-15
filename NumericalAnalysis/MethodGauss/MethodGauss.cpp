@@ -1,5 +1,5 @@
 ﻿/*
-* Semester 1. Laboratory work No.1
+* Laboratory work No.1
 * Gaussian method with main element selection by row.
 * Method Gauss. Residual vector. Determinant a matrix. Inverse matrix.
 * The solution is given for a 4x4 matrix.
@@ -56,14 +56,14 @@ public:
     void setSolutionVector(const vector<double>& new_solution) { solution_vector = new_solution; }
     void setCountPermutation() { ++permutation; }
     void setValueDeterminant(const double& new_determinant) { determinant = new_determinant; }
-
+    
     // Getters
     vector<vector<double>> getMatrix() const { return matrix; }
     vector<double> getRHSVector() const { return rhs_vector; }
     vector<double> getSolutionVector() const { return solution_vector; }
     int getCountPermutation() const { return permutation; }
     double getValueDeterminant() const { return determinant; }
-
+    
 private:
     int permutation = 0;
     double determinant = 0;
@@ -79,7 +79,7 @@ void print_equations(const vector<vector<double>>& lhs_matrix, const vector<doub
         for (int index_col = 0; index_col < SIZE_MATRIX; ++index_col) {
             cout << setw(8) << left << fixed << lhs_matrix[index_row][index_col];
         }
-        if (!rhs_vector.empty()) {
+        if (!rhs_vector.empty()) { 
             cout << "| " << rhs_vector[index_row];
         }
         cout << endl;
@@ -103,7 +103,7 @@ void print_vector(const vector<double>& output_vector, const string& name_vector
 // Task No.1
 void method_Gauss(Equation& sles, vector<double> rhs_vector) {
     vector<vector<double>> lhs_matrix = sles.getMatrix();
-    vector<int> index_solution = { 0, 1, 2, 3 };
+    vector<int> index_solution = {0, 1, 2, 3};
     vector<double> solution_equation(SIZE_MATRIX, 0.0);
 
     for (int index_row = 0; index_row < SIZE_MATRIX; ++index_row) {
