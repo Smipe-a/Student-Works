@@ -1,4 +1,4 @@
-## Method LU-decomposition and simple-iteration method.
+## Method LU-decomposition and simple-iteration method
 
 <p align="left">
 <img alt="SLEs" src="img/sles_lu.png" width="320"/>
