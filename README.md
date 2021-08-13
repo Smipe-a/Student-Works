@@ -1,4 +1,4 @@
-# Student Works Bashkir State University
+# Student Works Of The Bashkir State University
 In this repository relized problems from laboratory works 2020/21 years Baskir State University by subject the **Numerical Analysis**. \
 Problems was solved on ***C++17***.
 
